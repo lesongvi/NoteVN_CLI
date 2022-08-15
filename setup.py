@@ -26,11 +26,14 @@ setup(
 	name='nvnc',
 	version='.'.join(str(i) for i in __version__),
 	description='A notevn.com command line interface',
+	long_description="Notevn quick save text CLI, save your text quickly",
 	url='https://github.com/lesongvi/notevn-cli',
-	author='Lê Song Vĩ',
-	author_email='support.notevn.com@mxms.in',
+	author='Le Song Vi',
+	author_email='lesongvi@gmail.com',
+	license="GPLv3+",
 	install_requires=dependencies,
 	packages=['nvncli'],
+    py_modules=['nvncli'],
 	entry_points={
 		'console_scripts': [
 			'nvnc=nvncli.cli:start'
