@@ -24,19 +24,28 @@ def make_url(url, ext):
 	else:
 		return url + '/' + ext
 
-def rawTextToDelta (txt):
-    print(txt)
+def calculateLength (content):
+    content = re.sub("((\r|\n)+?)", 'n', content, flags=re.MULTILINE)
+    return len(content)
+
+def rawTextToDelta (txt, txtDelete = False):
     deltaText = ""
-    deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
-    deltaText = re.sub("(^(?![\r\n]).*$)", '{"insert": "\g<1>"},', deltaText, 0, flags=re.MULTILINE)
-    deltaText = re.sub("((\r|\n)+?)", '{"attributes":{"block":true},"insert":"\\\\n"},', deltaText, flags=re.MULTILINE)
+    if txtDelete == False:
+        deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
+        deltaText = re.sub("(^(?![\r\n]).*$)", '{"insert": "\g<1>"},', deltaText, 0, flags=re.MULTILINE)
+        deltaText = re.sub("((\r|\n)+?)", '{"attributes":{"block":true},"insert":"\\\\n"},', deltaText, flags=re.MULTILINE)
+    else:
+        deltaText = re.sub("\"", '\\\\"', txt, flags=re.MULTILINE)
+        deltaText = re.sub("((\r|\n)+?)", '\\\\n', deltaText, 0, flags=re.MULTILINE)
+        deltaText = '{"insert": "' + deltaText + '"}'
+        deltaText = deltaText + ',{"delete": ' + str(calculateLength(txt)) + '}'
     if deltaText[-1] == ',':
         deltaText = deltaText[:-1]
     delta = json.loads("[" + deltaText + "]")
-
-    return json.dumps({
+    result = json.dumps({
         "ops": delta
     })
+    return result
 
 def sharedUrl_deltaToRawText (shared_url):
     request_obj = Request("https://notevn.com/get_shared/" + shared_url)

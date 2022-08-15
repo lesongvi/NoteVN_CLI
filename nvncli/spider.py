@@ -9,7 +9,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 from brotli import decompress
 
-from nvn_utils import deltaToRawText, sharedUrl_deltaToRawText, rawTextToDelta
+from nvn_utils import deltaToRawText #, sharedUrl_deltaToRawText, rawTextToDelta
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -52,15 +52,13 @@ class Spider:
                 response_obj = request.urlopen(request_obj)
                 self.headers = response_obj.getheaders()
                 self.cookies = response_obj.getheader('Set-Cookie')
-                self.response = response_obj.read().decode('utf-8');
+                self.response = response_obj.read().decode('utf-8')
                 
                 self.get_pad_key(self.response)
                 self.get_url_key(self.response)
 
             except Exception as e: 
                 print(e)
-        
-            #print(self.urls)
 
 
     def add_headers(self, request_obj):
@@ -73,10 +71,8 @@ class Spider:
         return request_obj
 
 
-
     def hit(self):
         anotherRequest = Request(self.notevnGetShared + self.pad_key) # cookies=self.cookies
-        # anotherRequest = self.add_headers(anotherRequest)
 
         anotherRequest = request.urlopen(anotherRequest)
         self.content = deltaToRawText(json.loads(anotherRequest.read())['ops'])
@@ -115,14 +111,9 @@ class Spider:
 
 if __name__ == '__main__':
     content = ""
-    #url = input('Enter the url : ')
-    url = "https://notevn.com/notevncli"
-    spider = Spider(url)
+    # url = "https://notevn.com/notevncli"
+    # spider = Spider(url)
 
-    print(spider.url_key)
-    print(spider.pad_key)
-    print(spider.haspw)
-
-    # print(sharedUrl_deltaToRawText('he1tx699'))
-    print(rawTextToDelta("test\ntesst"))
+    # print(sharedUrl_deltaToRawText('diu'))
+    # print(rawTextToDelta("test\ntesst"))
 

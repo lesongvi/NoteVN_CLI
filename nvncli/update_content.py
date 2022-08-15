@@ -2,10 +2,20 @@ import os
 import logging
 import time
 
-from socketIO_client import SocketIO, BaseNamespace
+from socketIO_client_nexus import SocketIO, BaseNamespace
 
 from spider import Spider
-from nvn_utils import rawTextToDelta
+from nvn_utils import rawTextToDelta, calculateLength
+
+class SocketNamespace(BaseNamespace):
+    def on_connect(self):
+        print('WSS connected')
+
+    def on_disconnect(self):
+        print('WSS disconnected')
+
+    def on_reconnect(self):
+        print('WSS reconnected')
 
 class NotevnSocket(SocketIO):
 
@@ -18,14 +28,11 @@ class NotevnSocket(SocketIO):
         self.file_stamp = 0
 
         # self.io = SocketIO(self.socket_url, self.port, BaseNamespace)
-        print("Joining to WSS")
 
-        super().__init__(self.socket_url, self.port, BaseNamespace)
+        super().__init__(self.socket_url, self.port, SocketNamespace)
 
-        print("Joined to WSS")
-
-        logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
-        logging.basicConfig()
+        # logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
+        # logging.basicConfig()
         
     def join_room(self):
         self.emit('join_room', self.url_key)
@@ -38,8 +45,6 @@ class NotevnSocket(SocketIO):
         io_data['cursor_location'] = cursor_location
 
         self.emit('editing', io_data)
-
-    
         
 class Notevn:
 
@@ -49,6 +54,7 @@ class Notevn:
         self.spider = Spider(self.domain + self.url_key)
         self.pad_key = self.spider.pad_key
 
+        self.tmpContent = self.spider.content
         self.content = self.spider.content
         self.haspw = self.spider.haspw
 
@@ -83,11 +89,9 @@ class Notevn:
             f.write(self.content)
 
         return
-
+                    
 
     def save_file(self, filepath, overwrite):
-        print("test")
-
         file_content = self.get_content_from_file_path(filepath)
 
         self.filepath = filepath
@@ -98,9 +102,8 @@ class Notevn:
         else:
             self.content += file_content
 
-
         if self.io:
-            self.io.publish(rawTextToDelta(self.content), len(self.content) - 1)
+            self.io.publish(rawTextToDelta(self.content, True), len(self.content))
 
 
         data = dict()
@@ -120,13 +123,6 @@ class Notevn:
         data['action'] = 'save'
         data['file'] = '/' + self.url_key
         data['share_url'] = self.pad_key
-
-        # data['share_url'] = self.pad_key
-        # data['pad'] = rawTextToDelta(self.content)
-        # data['pw'] = ''
-        # data['file'] = '/' + self.url_key
-        # data['monospace'] = 0
-        # data['caret'] = 1
 
         self.spider.save(data)
 
