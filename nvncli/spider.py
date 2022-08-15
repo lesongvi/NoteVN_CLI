@@ -42,23 +42,23 @@ class Spider:
             self.domain = result[0]
 
     def visit(self):
-            if(self.verbose):
-                print("Visiting {}".format(self.url))
+        if(self.verbose):
+            print("Visiting {}".format(self.url))
+        
+        try:
+            request_obj = Request(self.url)
+            request_obj.add_header('User-Agent',self.USER_AGENT)
+            request_obj.add_header('Content-Type', 'text/html')
+            response_obj = request.urlopen(request_obj)
+            self.headers = response_obj.getheaders()
+            self.cookies = response_obj.getheader('Set-Cookie')
+            self.response = response_obj.read().decode('utf-8')
             
-            try:
-                request_obj = Request(self.url)
-                request_obj.add_header('User-Agent',self.USER_AGENT)
-                request_obj.add_header('Content-Type', 'text/html')
-                response_obj = request.urlopen(request_obj)
-                self.headers = response_obj.getheaders()
-                self.cookies = response_obj.getheader('Set-Cookie')
-                self.response = response_obj.read().decode('utf-8')
-                
-                self.get_pad_key(self.response)
-                self.get_url_key(self.response)
+            self.get_pad_key(self.response)
+            self.get_url_key(self.response)
 
-            except Exception as e: 
-                print(e)
+        except Exception as e: 
+            print(e)
 
 
     def add_headers(self, request_obj):

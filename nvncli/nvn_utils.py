@@ -8,7 +8,7 @@ from urllib import request
 from urllib.request import Request
 from bs4 import BeautifulSoup
 
-from ncdeltaprocess import delta_process
+from delta_utils import delta_process
 
 def is_url(url):
 	url_pattern = r'^https?://(.*?)\.(.*?)$'
@@ -29,13 +29,12 @@ def calculateLength (content):
     return len(content)
 
 def rawTextToDelta (txt, txtDelete = False):
-    deltaText = ""
+    deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
     if txtDelete == False:
-        deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
         deltaText = re.sub("(^(?![\r\n]).*$)", '{"insert": "\g<1>"},', deltaText, 0, flags=re.MULTILINE)
         deltaText = re.sub("((\r|\n)+?)", '{"attributes":{"block":true},"insert":"\\\\n"},', deltaText, flags=re.MULTILINE)
+        deltaText = deltaText + '{"attributes":{"block":true},"insert":"\\\\n"}'
     else:
-        deltaText = re.sub("\"", '\\\\"', txt, flags=re.MULTILINE)
         deltaText = re.sub("((\r|\n)+?)", '\\\\n', deltaText, 0, flags=re.MULTILINE)
         deltaText = '{"insert": "' + deltaText + '"}'
         deltaText = deltaText + ',{"delete": ' + str(calculateLength(txt)) + '}'

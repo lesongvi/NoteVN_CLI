@@ -74,6 +74,7 @@ class TranslatorBase(object):
         raw_blocks = []
         temporary_nodes = [] # the block marker comes at the end of the block, so we may not have one yet.
         block_keys = ['attributes']
+        limit = len(delta_ops)
         for counter, instruction in enumerate(delta_ops):
             if 'insert' not in instruction:
                 raise ValueError("This parser can only deal with documents.")
@@ -89,6 +90,13 @@ class TranslatorBase(object):
                 #    last_node_completes_block = False
                 if block_marker not in insert_instruction:
                     temporary_nodes.append(instruction)
+                    # if (counter + 1) == limit:
+                    #     yield_this = {'contents': temporary_nodes[:]}
+                    #     temporary_nodes = []
+                    #     for k in instruction.keys():
+                    #         if k in block_keys:
+                    #             yield_this[k] = instruction[k]
+                    #     yield yield_this
                 elif insert_instruction == block_marker:
                     # put the newline on the end of the last instruction, just in case we need it
                     if not 'attributes' in instruction:

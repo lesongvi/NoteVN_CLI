@@ -5,7 +5,7 @@ import time
 from socketIO_client_nexus import SocketIO, BaseNamespace
 
 from spider import Spider
-from nvn_utils import rawTextToDelta, calculateLength
+from nvn_utils import rawTextToDelta
 
 class SocketNamespace(BaseNamespace):
     def on_connect(self):

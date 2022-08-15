@@ -1,4 +1,4 @@
-test
-test
-xin chào Việt Nam
-tôi tên là Lê Song Vĩ, đến từ Gia Lai, Việt nôm, ok?
+alo alo 123
+Xin chào, tôi tên là
+Lê Song Vĩ
+Tôi đến từ Việt Nam
