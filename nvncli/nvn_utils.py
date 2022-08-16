@@ -28,18 +28,33 @@ def calculateLength (content):
     content = re.sub("((\r|\n)+?)", 'n', content, flags=re.MULTILINE)
     return len(content)
 
-def rawTextToDelta (txt, txtDelete = False):
+def getCurrentLength (key):
+    request_obj = Request("https://notevn.com/get_shared/" + key)
+
+    response_obj = request.urlopen(request_obj)
+    
+    try:
+        content = json.loads(response_obj.read())['ops']
+    except Exception as _:
+        return 0
+
+    return calculateLength(deltaToRawText(content))
+
+def rawTextToDelta (txt, txtDelete = False, key = None):
     deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
     if txtDelete == False:
         deltaText = re.sub("(^(?![\r\n]).*$)", '{"insert": "\g<1>"},', deltaText, 0, flags=re.MULTILINE)
         deltaText = re.sub("((\r|\n)+?)", '{"attributes":{"block":true},"insert":"\\\\n"},', deltaText, flags=re.MULTILINE)
-        deltaText = deltaText + '{"attributes":{"block":true},"insert":"\\\\n"}'
+        deltaText = deltaText + '{"attributes":{"block":true},"insert":"\\n"}'
     else:
+        if key == None:
+            raise Exception("Key is required when txtDelete is True")
         deltaText = re.sub("((\r|\n)+?)", '\\\\n', deltaText, 0, flags=re.MULTILINE)
         deltaText = '{"insert": "' + deltaText + '"}'
-        deltaText = deltaText + ',{"delete": ' + str(calculateLength(txt)) + '}'
+        deltaText = deltaText + ',{"delete": ' + str(getCurrentLength(key)) + '}'
     if deltaText[-1] == ',':
         deltaText = deltaText[:-1]
+
     delta = json.loads("[" + deltaText + "]")
     result = json.dumps({
         "ops": delta
@@ -54,7 +69,6 @@ def sharedUrl_deltaToRawText (shared_url):
     content = json.loads(response_obj.read())['ops']
 
     return deltaToRawText(content)
-
 
 def deltaToRawText (content):
     randomSeed = "nvncli_dotpoint_" + str(random.seed(20)) + "_roy"

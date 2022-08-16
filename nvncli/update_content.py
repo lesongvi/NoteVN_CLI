@@ -27,8 +27,6 @@ class NotevnSocket(SocketIO):
         self.filepath = ''
         self.file_stamp = 0
 
-        # self.io = SocketIO(self.socket_url, self.port, BaseNamespace)
-
         super().__init__(self.socket_url, self.port, SocketNamespace)
 
         # logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
@@ -66,18 +64,22 @@ class Notevn:
 
 
     def get_content_from_file_path(self, file_path):
-
         content = ''
 
-        with open(file_path) as f:
-            content = f.read()
+        try:
+            with open(file_path, 'r') as f:
+                content = f.read()
+        except IOError:
+            print('File not found')
 
         return content
 
 
     def is_file_content_changed(self):
-
-        new_file_stamp = os.stat(self.filepath).st_mtime
+        try:
+            new_file_stamp = os.stat(self.filepath).st_mtime
+        except Exception as _:
+            new_file_stamp = 0
 
         if(new_file_stamp != self.file_stamp):
             return True
@@ -95,7 +97,10 @@ class Notevn:
         file_content = self.get_content_from_file_path(filepath)
 
         self.filepath = filepath
-        self.file_stamp = os.stat(filepath).st_mtime
+        try:
+            self.file_stamp = os.stat(filepath).st_mtime
+        except Exception as _:
+            self.file_stamp = 0
 
         if(overwrite):
             self.content = file_content
@@ -103,8 +108,7 @@ class Notevn:
             self.content += file_content
 
         if self.io:
-            self.io.publish(rawTextToDelta(self.content, True), len(self.content))
-
+            self.io.publish(rawTextToDelta(self.content, True, self.pad_key), len(self.content))
 
         data = dict()
 

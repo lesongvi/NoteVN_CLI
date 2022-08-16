@@ -35,9 +35,9 @@ MESSAGE = 'blue'
 SUCCESS = 'green'
 
 def start():
+
 	arguments = docopt(__doc__, version='nvncli version '+'.'.join(str(i) for i in __version__))
 	
-
 	filename = arguments.get('FILE', None)
 	curr_dir = os.getcwd()
 	file_path = os.path.join(curr_dir, filename)
@@ -55,8 +55,10 @@ def start():
 		notevn = Notevn(link, live_update=live_update)
 
 	except Exception as e:
-
-		print(e.stacktrace())
+		if hasattr(e, 'stacktrace'):
+			print(e.stacktrace())
+		else:
+			print(e)
 
 		cprint("\nError: Something went wrong...", WARNING)
 		return -1
@@ -73,7 +75,6 @@ def start():
 		notevn.save_file(file_path, arguments['--overwrite'])
 
 		try:
-
 			if watch:
 				cprint('Watching {} for changes'.format(filename),MESSAGE)
 
@@ -85,7 +86,6 @@ def start():
 					cprint('Changes saved',MESSAGE)
 
 		except  KeyboardInterrupt:
-
 			cprint('\nClosing nvncli', MESSAGE) 
 
 if __name__ == '__main__':

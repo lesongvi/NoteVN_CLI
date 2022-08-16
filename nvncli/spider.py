@@ -60,7 +60,6 @@ class Spider:
         except Exception as e: 
             print(e)
 
-
     def add_headers(self, request_obj):
         request_obj.add_header('User-Agent',self.USER_AGENT)
         request_obj.add_header('Cookie', self.cookies)
@@ -70,15 +69,17 @@ class Spider:
         
         return request_obj
 
-
     def hit(self):
         anotherRequest = Request(self.notevnGetShared + self.pad_key) # cookies=self.cookies
-
+        
         anotherRequest = request.urlopen(anotherRequest)
-        self.content = deltaToRawText(json.loads(anotherRequest.read())['ops'])
+        try:
+            response = json.loads(anotherRequest.read())
+            self.content = deltaToRawText(response['ops'])
+        except ValueError as _:
+            self.haspw = True
 
         return
-
 
     def get_pad_key(self, response):
         pad_key_pattern = r'(?<=pad_key = \')[a-z0-9]+'
@@ -97,7 +98,6 @@ class Spider:
                 if(url_key):
                     self.url_key = url_key
 
-
     def save(self, data):
         encoded_data = urlencode(data).encode('utf-8')
 
@@ -107,7 +107,7 @@ class Spider:
         request_obj.add_header('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
         request_obj.add_header('origin', 'https://notevn.com')
 
-        response_obj = request.urlopen(request_obj)
+        request.urlopen(request_obj)
 
 if __name__ == '__main__':
     content = ""
