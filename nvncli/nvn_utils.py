@@ -40,6 +40,14 @@ def getCurrentLength (key):
 
     return calculateLength(deltaToRawText(content))
 
+def generateDeleteContent (key):
+    delta = '{"delete":' + str(getCurrentLength(key)) + '}'
+    result = json.loads("[" + delta + "]")
+
+    return json.dumps({
+        "ops": result
+    })
+
 def rawTextToDelta (txt, txtDelete = False, key = None):
     deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)
     if txtDelete == False:
@@ -51,15 +59,15 @@ def rawTextToDelta (txt, txtDelete = False, key = None):
             raise Exception("Key is required when txtDelete is True")
         deltaText = re.sub("((\r|\n)+?)", '\\\\n', deltaText, 0, flags=re.MULTILINE)
         deltaText = '{"insert": "' + deltaText + '"}'
-        deltaText = deltaText + ',{"delete": ' + str(getCurrentLength(key)) + '}'
+        # deltaText = deltaText + ',{"delete": ' + str(getCurrentLength(key)) + '}'
     if deltaText[-1] == ',':
         deltaText = deltaText[:-1]
 
     delta = json.loads("[" + deltaText + "]")
-    result = json.dumps({
+
+    return json.dumps({
         "ops": delta
     })
-    return result
 
 def sharedUrl_deltaToRawText (shared_url):
     request_obj = Request("https://notevn.com/get_shared/" + shared_url)

@@ -5,7 +5,7 @@ import time
 from socketIO_client_nexus import SocketIO, BaseNamespace
 
 from spider import Spider
-from nvn_utils import rawTextToDelta
+from nvn_utils import rawTextToDelta, generateDeleteContent
 
 class SocketNamespace(BaseNamespace):
     def on_connect(self):
@@ -108,6 +108,8 @@ class Notevn:
             self.content += file_content
 
         if self.io:
+            self.io.publish(generateDeleteContent(self.pad_key), 0)
+            time.sleep(0.05)
             self.io.publish(rawTextToDelta(self.content, True, self.pad_key), len(self.content))
 
         data = dict()
