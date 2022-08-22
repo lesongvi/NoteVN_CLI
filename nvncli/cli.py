@@ -27,8 +27,8 @@ import time
 from docopt import docopt
 from termcolor import cprint
 
-from update_content import Notevn
-from __init__ import __version__
+from nvncli.update_content import Notevn
+from nvncli.__init__ import __version__
 
 WARNING = 'red'
 MESSAGE = 'blue'

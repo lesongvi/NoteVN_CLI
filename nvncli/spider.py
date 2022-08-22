@@ -9,7 +9,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 from brotli import decompress
 
-from nvn_utils import deltaToRawText #, sharedUrl_deltaToRawText, rawTextToDelta
+from nvncli.nvn_utils import deltaToRawText #, sharedUrl_deltaToRawText, rawTextToDelta
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
