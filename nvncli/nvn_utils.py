@@ -29,8 +29,11 @@ def calculateLength (content):
     content = re.sub("((\r|\n)+?)", 'n', content, flags=re.MULTILINE)
     return len(content)
 
-def getCurrentLength (key):
-    request_obj = Request("https://notevn.com/get_shared/" + key)
+def getCurrentLength (key, shared_url = None):
+    if shared_url != None:
+        raise Exception("shared_url is None")
+
+    request_obj = Request(shared_url + key)
 
     response_obj = request.urlopen(request_obj)
     
@@ -41,16 +44,21 @@ def getCurrentLength (key):
 
     return calculateLength(deltaToRawText(content))
 
-def generateDeleteContent (key):
-    delta = '{"delete":' + str(getCurrentLength(key)) + '}'
+def generateDeleteContent (key, shared_url = None):
+    if shared_url == None:
+        raise Exception("shared_url is None")
+
+    delta = '{"delete":' + str(getCurrentLength(key, shared_url)) + '}'
     result = json.loads("[" + delta + "]")
 
     return json.dumps({
         "ops": result
     })
 
-def getDefaultContent (content, key):
-    result = json.loads('[{"insert": "' + content.replace("\n", "\\n") + '"}, {"delete":' + str(getCurrentLength(key) - 1) + '}]')
+def getDefaultContent (content, key, shared_url = None):
+    if shared_url == None:
+        raise Exception("shared_url is required")
+    result = json.loads('[{"insert": "' + content.replace("\n", "\\n") + '"}, {"delete":' + str(getCurrentLength(key, shared_url) - 1) + '}]')
     return json.dumps({
         "ops": result
     })
@@ -65,7 +73,9 @@ def calculateIOContentIncludeRandomSeed (content, randomSeed, start, end):
 def exportAsDumps (content):
     return json.dumps(content)
 
-def comparingAndRetainIf (old_content, new_content = None, key = None):
+def comparingAndRetainIf (old_content, new_content = None, key = None, shared_url = None):
+    if shared_url == None:
+        raise Exception("shared_url is required")
     # newDeltaContent = [];
     # randomSeed = " nvncli_dotpoint_" + str(genMySeed()) + "_vdiu "
     # if new_content == None:
@@ -150,7 +160,6 @@ def rawTextToDelta (txt, txtDelete = False, key = None):
             raise Exception("Key is required when txtDelete is True")
         deltaText = re.sub("((\r|\n)+?)", '\\\\n', deltaText, 0, flags=re.MULTILINE)
         deltaText = '{"insert": "' + deltaText + '"}'
-        # deltaText = deltaText + ',{"delete": ' + str(getCurrentLength(key)) + '}'
     if deltaText[-1] == ',':
         deltaText = deltaText[:-1]
 
@@ -160,8 +169,11 @@ def rawTextToDelta (txt, txtDelete = False, key = None):
         "ops": delta
     })
 
-def sharedUrl_deltaToRawText (shared_url):
-    request_obj = Request("https://notevn.com/get_shared/" + shared_url)
+def sharedUrl_deltaToRawText (shared_key, shared_url = None):
+    if shared_url == None:
+        raise Exception("shared_url is required")
+
+    request_obj = Request(shared_url + shared_key)
 
     response_obj = request.urlopen(request_obj)
     

@@ -8,26 +8,41 @@ from urllib.parse import urlencode
 from multiprocessing.dummy import Pool as ThreadPool
 
 from brotli import decompress
+from nvncli import multihost
+from nvncli.multihost import MultiHost
 
 from nvncli.nvn_utils import deltaToRawText #, sharedUrl_deltaToRawText, rawTextToDelta
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
 class Spider:
-    notevnProcessAPI = "https://notevn.com/ajax.php"
+    notevnProcessAPI = "https://notevn.com/ajax.php" # Defaults to main_note
 
-    def __init__(self,url, verbose=False):
+    def __init__(self,url, verbose=False, multihost=MultiHost('main_note')):
+        self.multihost = multihost
         self.url = url
         self.domain = ''
         self.response = ''
         self.verbose = verbose
         self.content = ''
         self.haspw = False
-        self.notevnGetShared = "https://notevn.com/get_shared/"
+        self.notevnGetShared = self.multihost.get_shared_url()
         self.cookies = ""
+        self.notevnProcessAPI = self.multihost.get_process_url()
+        self.sub_mode = self.multihost.get_sub_mode()
 
         self.get_domain()
-        self.USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
+        self.USER_AGENT = [
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+            'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
+            'Opera/9.25 (Windows NT 5.1; U; en)',
+            'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
+            'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5 (like Gecko) (Kubuntu)',
+            'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.142 Safari/535.19',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0.1) Gecko/20100101 Firefox/8.0.1',
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19'
+        ]
         self.url_key = ""
         self.pad_key = ""
         self.visit()
@@ -64,7 +79,7 @@ class Spider:
     def add_headers(self, request_obj):
         request_obj.add_header('User-Agent',self.USER_AGENT)
         request_obj.add_header('Cookie', self.cookies)
-        request_obj.add_header('referer', 'https://notevn.com/' + self.url_key)
+        request_obj.add_header('referer', self.multihost.get_domain_name(False) + self.url_key)
         request_obj.add_header('x-requested-with', 'XMLHttpRequest')
         request_obj.add_header('accept-encoding', 'gzip, deflate, br')
         
@@ -75,9 +90,13 @@ class Spider:
         
         anotherRequest = request.urlopen(anotherRequest)
         try:
-            response = json.loads(anotherRequest.read())
-            self.content = deltaToRawText(response['ops'])
+            if self.sub_mode == 'debug':
+                self.content = response
+            elif self.sub_mode == 'main_note':
+                response = json.loads(anotherRequest.read())
+                self.content = deltaToRawText(response['ops'])
         except ValueError as _:
+            # lock level 2?
             self.haspw = True
 
         return
@@ -102,11 +121,11 @@ class Spider:
     def save(self, data):
         encoded_data = urlencode(data).encode('utf-8')
 
-        request_obj = Request(self.notevnProcessAPI, method="POST", data=encoded_data, headers={})
+        request_obj = Request(self.notevnProcessAPI, method=self.multihost.get_method_type('save'), data=encoded_data, headers={})
 
         request_obj = self.add_headers(request_obj)
         request_obj.add_header('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
-        request_obj.add_header('origin', 'https://notevn.com')
+        request_obj.add_header('origin', self.multihost.get_domain_name(False, lastSlash=False))
 
         request.urlopen(request_obj)
 
@@ -114,7 +133,8 @@ if __name__ == '__main__':
     content = ""
     # url = "https://notevn.com/notevncli"
     # spider = Spider(url)
+    # multihost = MultiHost('development')
 
-    # print(sharedUrl_deltaToRawText('diu'))
+    # print(sharedUrl_deltaToRawText('diu'), multihost.get_domain_name(False))
     # print(rawTextToDelta("test\ntesst"))
 

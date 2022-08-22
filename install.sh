@@ -1,2 +1,2 @@
-sudo pip3 install -r requirements
+pip uninstall nvnc
 sudo python3 setup.py install 
