@@ -24,6 +24,7 @@ class Spider:
         self.content = ''
         self.haspw = False
         self.notevnGetShared = "https://notevn.com/get_shared/"
+        self.cookies = ""
 
         self.get_domain()
         self.USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'

@@ -13,28 +13,32 @@ pip install nvnc
 
 # CLI Usage
 
+```sh
+
+nvnc --help
+
+```
+
 To save content to https://notevn.com/urlpath
 
-```bash
+```sh
 
 nvnc -lo file_path urlpath
 
 ```
 
-To track file changes, use the flag `--watch` or `-w`
+To track file changes, use the flag `--watch` or `-w`  
+For instance:
 
-Ví dụ
-
-```bash
+```sh
 
 nvnc -owl file_path urlpath
 
 ```
 
-
 To save the contents of the `urlpath` note to a local file path, use the following command
 
-```
+```sh
 
 nvnc -g file_path urlpath 
 
