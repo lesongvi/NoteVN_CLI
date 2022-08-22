@@ -4,8 +4,8 @@ import time
 
 from socketIO_client_nexus import SocketIO, BaseNamespace
 
-from spider import Spider
-from nvn_utils import rawTextToDelta, generateDeleteContent, comparingAndRetainIf
+from nvncli.spider import Spider
+from nvncli.nvn_utils import rawTextToDelta, generateDeleteContent, comparingAndRetainIf
 
 class SocketNamespace(BaseNamespace):
     def on_connect(self):

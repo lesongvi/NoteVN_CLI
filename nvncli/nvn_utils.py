@@ -9,7 +9,7 @@ from urllib.request import Request
 from bs4 import BeautifulSoup
 # from difflib import ndiff
 
-from delta_utils import delta_process
+from deltaprocessor import delta_process
 
 def is_url(url):
 	url_pattern = r'^https?://(.*?)\.(.*?)$'
