@@ -9,7 +9,7 @@ except ImportError:
 	from distutils.core import setup
 
 
-dependencies = ['docopt', 'termcolor', 'socketio-client-nexus', 'brotli']
+dependencies = ['docopt', 'termcolor', 'socketio-client-nexus', 'brotli', 'deltaprocessor']
 
 
 def publish():
@@ -27,13 +27,13 @@ setup(
 	version='.'.join(str(i) for i in __version__),
 	description='A notevn.com command line interface',
 	long_description="Notevn quick save text CLI, save your text quickly",
-	url='https://github.com/lesongvi/notevn-cli',
+	url='https://github.com/lesongvi/NoteVN_CLI',
 	author='Le Song Vi',
 	author_email='lesongvi@gmail.com',
 	license="GPLv3+",
 	install_requires=dependencies,
 	packages=['nvncli'],
-    py_modules=['nvncli'],
+    	py_modules=['nvncli'],
 	entry_points={
 		'console_scripts': [
 			'nvnc=nvncli.cli:start'
