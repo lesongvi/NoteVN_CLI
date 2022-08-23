@@ -1,6 +1,7 @@
 import json
 import re
 import ssl
+import random
 
 from urllib import request
 from urllib.request import Request
@@ -32,7 +33,7 @@ class Spider:
         self.sub_mode = self.multihost.get_sub_mode()
 
         self.get_domain()
-        self.USER_AGENT = [
+        self.USER_AGENTS = [
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
             'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
             'Opera/9.25 (Windows NT 5.1; U; en)',
@@ -57,13 +58,16 @@ class Spider:
         if(result):
             self.domain = result[0]
 
+    def generate_random_user_agent (self):
+        return self.USER_AGENTS[random.randint(0, len(self.USER_AGENTS) - 1)]
+
     def visit(self):
         if(self.verbose):
             print("Visiting {}".format(self.url))
         
         try:
             request_obj = Request(self.url)
-            request_obj.add_header('User-Agent',self.USER_AGENT)
+            request_obj.add_header('User-Agent', self.generate_random_user_agent())
             request_obj.add_header('Content-Type', 'text/html')
             response_obj = request.urlopen(request_obj)
             self.headers = response_obj.getheaders()
@@ -77,7 +81,7 @@ class Spider:
             print(e)
 
     def add_headers(self, request_obj):
-        request_obj.add_header('User-Agent',self.USER_AGENT)
+        request_obj.add_header('User-Agent', self.generate_random_user_agent())
         request_obj.add_header('Cookie', self.cookies)
         request_obj.add_header('referer', self.multihost.get_domain_name(False) + self.url_key)
         request_obj.add_header('x-requested-with', 'XMLHttpRequest')
@@ -90,10 +94,11 @@ class Spider:
         
         anotherRequest = request.urlopen(anotherRequest)
         try:
+            read_content = anotherRequest.read()
             if self.sub_mode == 'debug':
-                self.content = response
+                self.content = read_content
             elif self.sub_mode == 'main_note':
-                response = json.loads(anotherRequest.read())
+                response = json.loads(read_content)
                 self.content = deltaToRawText(response['ops'])
         except ValueError as _:
             # lock level 2?

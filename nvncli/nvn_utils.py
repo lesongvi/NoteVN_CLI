@@ -58,7 +58,7 @@ def generateDeleteContent (key, shared_url = None):
 def getDefaultContent (content, key, shared_url = None):
     if shared_url == None:
         raise Exception("shared_url is required")
-    result = json.loads('[{"insert": "' + content.replace("\n", "\\n") + '"}, {"delete":' + str(getCurrentLength(key, shared_url) - 1) + '}]')
+    result = json.loads('[{"insert": "' + content.replace("\n", "\\n") + '"}, {"delete":' + str(getCurrentLength(key, shared_url=shared_url) - 1) + '}]')
     return json.dumps({
         "ops": result
     })
@@ -147,7 +147,7 @@ def comparingAndRetainIf (old_content, new_content = None, key = None, shared_ur
     #             "insert": insertTxt
     #         })
     #         return exportAsDumps(newDeltaContent)
-    return getDefaultContent(old_content, key)
+    return getDefaultContent(old_content, key, shared_url=shared_url)
 
 def rawTextToDelta (txt, txtDelete = False, key = None):
     deltaText = re.sub("\"", '\\\"', txt, flags=re.MULTILINE)

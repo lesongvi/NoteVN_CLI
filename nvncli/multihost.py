@@ -132,7 +132,7 @@ class MultiHost ():
         return self.get_variable('note_info')['method']
     
     def get_live_server (self):
-        return self.get_variable('live_info')['host'] if self.get_variable('live_info')['available'] else None
+        return (('https' if self.get_variable('live_info')['port'] == 443 else 'http') + '://' + self.get_variable('live_info')['host']) if self.get_variable('live_info')['available'] else None
     
     def is_valid_live_server (self):
         return self.get_variable('live_info')['available']
