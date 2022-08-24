@@ -1,6 +1,28 @@
 class MultiHost ():
     def __init__ (self, sub_mode):
         self.sub_mode = sub_mode
+        
+    def socket_protocols (self):
+        return {
+            'socket.io': {
+                is_http_layer: True,
+                ports: {
+                    80: 'http',
+                    443: 'https'
+                }
+            },
+            'web_socket': {
+                is_http_layer: None,
+                ports: {
+                    8080: 'wss',
+                }
+            }
+        }
+        
+    def get_socket_protocol (self):
+        live_info = self.get_variable('live_info')
+        protocol = self.socket_protocols[live_info['connection']]
+        return protocol['ports'][live_info['port']]
     
     def hostVariables (self):
         return {
@@ -33,6 +55,7 @@ class MultiHost ():
                 },
                 'live_info': {
                     'available': False,
+                    'connection': None,
                     'host': None,
                     'port': -1,
                 },
@@ -68,6 +91,7 @@ class MultiHost ():
                 },
                 'live_info': {
                     'available': True,
+                    'connection': 'socket.io',
                     'host': 'live.notevn.com',
                     'port': 443,
                 },
@@ -103,6 +127,7 @@ class MultiHost ():
                 },
                 'live_info': {
                     'available': False,
+                    'connection': 'socket.io',
                     'host': 'live.note.vn.dev',
                     'port': 80,
                 },
@@ -132,7 +157,7 @@ class MultiHost ():
         return self.get_variable('note_info')['method']
     
     def get_live_server (self):
-        return (('https' if self.get_variable('live_info')['port'] == 443 else 'http') + '://' + self.get_variable('live_info')['host']) if self.get_variable('live_info')['available'] else None
+        return (self.get_socket_protocol() + '://' + self.get_variable('live_info')['host']) if self.get_variable('live_info')['available'] else None
     
     def is_valid_live_server (self):
         return self.get_variable('live_info')['available']
