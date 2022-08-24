@@ -5,15 +5,15 @@ class MultiHost ():
     def socket_protocols (self):
         return {
             'socket.io': {
-                is_http_layer: True,
-                ports: {
+                'is_http_layer': True,
+                'ports': {
                     80: 'http',
                     443: 'https'
                 }
             },
             'web_socket': {
-                is_http_layer: None,
-                ports: {
+                'is_http_layer': None,
+                'ports': {
                     8080: 'wss',
                 }
             }
