@@ -1,6 +1,8 @@
 import os
 import logging
 import time
+from nvncli import multihost
+from nvncli.multihost import MultiHost
 
 from socketIO_client_nexus import SocketIO, BaseNamespace
 
@@ -19,10 +21,10 @@ class SocketNamespace(BaseNamespace):
 
 class NotevnSocket(SocketIO):
 
-    def __init__(self, url_key):
+    def __init__(self, url_key, live_server, port = 443):
 
-        self.socket_url = 'https://live.notevn.com'
-        self.port = 443
+        self.socket_url = live_server
+        self.port = port
         self.url_key = url_key
         self.filepath = ''
         self.file_stamp = 0
@@ -46,20 +48,25 @@ class NotevnSocket(SocketIO):
         
 class Notevn:
 
-    def __init__(self, url_key, live_update=False):
+    def __init__(self, url_key, live_update=False, multihost=MultiHost('main_note')):
+        self.multihost = multihost
+
         self.url_key = url_key
-        self.domain = "https://notevn.com/"
-        self.spider = Spider(self.domain + self.url_key)
+        self.domain = self.multihost.get_domain_name(True)
+        self.spider = Spider(self.domain + self.url_key, multihost=self.multihost)
         self.pad_key = self.spider.pad_key
 
-        self.tmpContent = self.spider.content
+        # self.tmpContent = self.spider.content
         self.content = self.spider.content
         self.haspw = self.spider.haspw
 
         self.io = None
 
         if live_update:
-            self.io = NotevnSocket(self.url_key)
+            if self.multihost.is_valid_live_server() == False:
+                print('Live update is not available, please try to change mode to "main_note"')
+                return
+            self.io = NotevnSocket(self.url_key, self.multihost.get_live_server(), port=self.multihost.get_live_port())
             self.io.join_room()
 
 
@@ -108,14 +115,23 @@ class Notevn:
             self.content += file_content
 
         if self.io:
-            io_content = comparingAndRetainIf(self.content, key = self.pad_key)
+            io_content = comparingAndRetainIf(self.content, key = self.pad_key, shared_url=self.multihost.get_shared_url())
             if io_content != None:
                 self.io.publish(io_content, len(self.content))
 
+        sub_mode = self.multihost.get_sub_mode()
         data = dict()
+        # sub_mode == 'false
+        content_to_save = self.content
+
+        if sub_mode == 'main_note':
+            content_to_save = rawTextToDelta(self.content)
+        elif sub_mode == None:
+            print('Invalid sub mode!')
+            return
 
         data['data[0][name]'] = self.url_key
-        data['data[0][data]'] = rawTextToDelta(self.content)
+        data['data[0][data]'] = content_to_save
         data['data[0][created_by]'] = 'Vô+danh'
         data['data[0][created_on]'] = int(time.time())
         data['data[0][modified_by]'] = 'Vô+danh'
