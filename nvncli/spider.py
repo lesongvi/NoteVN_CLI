@@ -89,7 +89,33 @@ class Spider:
         
         return request_obj
 
+    def checkEmptyOrLockLevel2 (self):
+        data = dict()
+        data['action'] = 'getnote'
+        data['file'] = '/' + self.url_key
+        encoded_data = urlencode(data).encode('utf-8')
+
+        request_obj = Request(self.notevnProcessAPI, method=self.multihost.get_method_type('init'), data=encoded_data, headers={})
+
+        request_obj = self.add_headers(request_obj)
+        request_obj.add_header('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
+        request_obj.add_header('origin', self.multihost.get_domain_name(False, lastSlash=False))
+
+        response_obj = request.urlopen(request_obj)
+        data_b = json.loads(decompress(response_obj.read()))
+        if data_b['data']['notes'][0]['empty']:
+            return 'empty'
+        if data_b['data']['notes'][0]['type'] != 'protected':
+            return 'protect_level2'
+        return 'good'
+
     def hit(self):
+        if self.checkEmptyOrLockLevel2() == 'protect_level2':
+            self.haspw = True
+            return
+        elif self.checkEmptyOrLockLevel2() == 'empty':
+            self.content = ""
+            return
         anotherRequest = Request(self.notevnGetShared + self.pad_key) # cookies=self.cookies
         
         anotherRequest = request.urlopen(anotherRequest)

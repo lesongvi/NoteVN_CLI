@@ -21,7 +21,7 @@ class MultiHost ():
         
     def get_socket_protocol (self):
         live_info = self.get_variable('live_info')
-        protocol = self.socket_protocols[live_info['connection']]
+        protocol = self.socket_protocols()[live_info['connection']]
         return protocol['ports'][live_info['port']]
     
     def hostVariables (self):
@@ -38,7 +38,8 @@ class MultiHost ():
                     'api_key_required': False, # rqn9 credentials?
                     'method': {
                         'get': 'GET',
-                        'save': 'POST'
+                        'save': 'POST',
+                        'init': 'POST'
                     },
                     'process_path': '/ajax.php'
                 },
@@ -74,7 +75,8 @@ class MultiHost ():
                     'api_key_required': False,
                     'method': {
                         'get': 'GET',
-                        'save': 'POST'
+                        'save': 'POST',
+                        'init': 'POST'
                     },
                     'process_path': '/ajax.php'
                 },
@@ -110,7 +112,8 @@ class MultiHost ():
                     'api_key_required': True,
                     'method': {
                         'get': 'GET',
-                        'save': 'POST'
+                        'save': 'POST',
+                        'init': 'POST'
                     },
                     'process_path': '/save'
                 },
