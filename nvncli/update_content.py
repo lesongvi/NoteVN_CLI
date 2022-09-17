@@ -1,13 +1,12 @@
 import os
-import logging
 import time
-from nvncli import multihost
 from nvncli.multihost import MultiHost
 
 from socketIO_client_nexus import SocketIO, BaseNamespace
 
 from nvncli.spider import Spider
 from nvncli.nvn_utils import rawTextToDelta, generateDeleteContent, comparingAndRetainIf
+
 
 class SocketNamespace(BaseNamespace):
     def on_connect(self):
@@ -19,9 +18,10 @@ class SocketNamespace(BaseNamespace):
     def on_reconnect(self):
         print('WSS reconnected')
 
+
 class NotevnSocket(SocketIO):
 
-    def __init__(self, url_key, live_server, port = 443):
+    def __init__(self, url_key, live_server, port=443):
 
         self.socket_url = live_server
         self.port = port
@@ -33,7 +33,7 @@ class NotevnSocket(SocketIO):
 
         # logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
         # logging.basicConfig()
-        
+
     def join_room(self):
         self.emit('join_room', self.url_key)
 
@@ -45,7 +45,8 @@ class NotevnSocket(SocketIO):
         io_data['cursor_location'] = cursor_location
 
         self.emit('editing', io_data)
-        
+
+
 class Notevn:
 
     def __init__(self, url_key, live_update=False, multihost=MultiHost('main_note')):
@@ -53,7 +54,8 @@ class Notevn:
 
         self.url_key = url_key
         self.domain = self.multihost.get_domain_name(True)
-        self.spider = Spider(self.domain + self.url_key, multihost=self.multihost)
+        self.spider = Spider(self.domain + self.url_key,
+                             multihost=self.multihost)
         self.pad_key = self.spider.pad_key
 
         # self.tmpContent = self.spider.content
@@ -64,11 +66,12 @@ class Notevn:
 
         if live_update:
             if self.multihost.is_valid_live_server() == False:
-                print('Live update is not available, please try to change mode to "main_note"')
+                print(
+                    'Live update is not available, please try to change mode to "main_note"')
                 return
-            self.io = NotevnSocket(self.url_key, self.multihost.get_live_server(), port=self.multihost.get_live_port())
+            self.io = NotevnSocket(self.url_key, self.multihost.get_live_server(
+            ), port=self.multihost.get_live_port())
             self.io.join_room()
-
 
     def get_content_from_file_path(self, file_path):
         content = ''
@@ -81,24 +84,21 @@ class Notevn:
 
         return content
 
-
     def is_file_content_changed(self):
         try:
             new_file_stamp = os.stat(self.filepath).st_mtime
         except Exception as _:
             new_file_stamp = 0
 
-        if(new_file_stamp != self.file_stamp):
+        if (new_file_stamp != self.file_stamp):
             return True
         return False
-
 
     def save_to_file(self, filename, overwrite):
         with open(filename, 'w') as f:
             f.write(self.content)
 
         return
-                    
 
     def save_file(self, filepath, overwrite):
         file_content = self.get_content_from_file_path(filepath)
@@ -109,13 +109,14 @@ class Notevn:
         except Exception as _:
             self.file_stamp = 0
 
-        if(overwrite):
+        if (overwrite):
             self.content = file_content
         else:
             self.content += file_content
 
         if self.io:
-            io_content = comparingAndRetainIf(self.content, key = self.pad_key, shared_url=self.multihost.get_shared_url())
+            io_content = comparingAndRetainIf(
+                self.content, key=self.pad_key, shared_url=self.multihost.get_shared_url())
             if io_content != None:
                 self.io.publish(io_content, len(self.content))
 
@@ -152,6 +153,7 @@ class Notevn:
 
     def view_file(self):
         return self.content
+
 
 np = None
 

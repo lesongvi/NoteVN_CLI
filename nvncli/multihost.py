@@ -1,8 +1,8 @@
 class MultiHost ():
-    def __init__ (self, sub_mode):
+    def __init__(self, sub_mode):
         self.sub_mode = sub_mode
-        
-    def socket_protocols (self):
+
+    def socket_protocols(self):
         return {
             'socket.io': {
                 'is_http_layer': True,
@@ -18,13 +18,13 @@ class MultiHost ():
                 }
             }
         }
-        
-    def get_socket_protocol (self):
+
+    def get_socket_protocol(self):
         live_info = self.get_variable('live_info')
         protocol = self.socket_protocols()[live_info['connection']]
         return protocol['ports'][live_info['port']]
-    
-    def hostVariables (self):
+
+    def hostVariables(self):
         return {
             # https://api.rqn9.com/data/1.0/textvn/
             'debug': {
@@ -34,8 +34,8 @@ class MultiHost ():
                     'available': True,
                     'protocol': 'https',
                     'domain': 'debug.notevn.com',
-                    'path': '', # api txt
-                    'api_key_required': False, # rqn9 credentials?
+                    'path': '',  # api txt
+                    'api_key_required': False,  # rqn9 credentials?
                     'method': {
                         'get': 'GET',
                         'save': 'POST',
@@ -43,14 +43,14 @@ class MultiHost ():
                     },
                     'process_path': '/ajax.php'
                 },
-                'share_info': { # Incase separate server for share link
+                'share_info': {  # Incase separate server for share link
                     'available': True,
                     'protocol': 'https',
                     'domain': 'debug.notevn.com',
                     'path': '/raw/',
                     'structure': {
                         'format': 'raw',
-                        'type': 'string', # initial type
+                        'type': 'string',  # initial type
                         'key': None
                     }
                 },
@@ -87,7 +87,7 @@ class MultiHost ():
                     'path': '/get_shared/',
                     'structure': {
                         'format': 'json',
-                        'type': 'object', # initial type
+                        'type': 'object',  # initial type
                         'key': 'ops'
                     }
                 },
@@ -102,7 +102,7 @@ class MultiHost ():
                 }
             },
             'development': {
-                'enabled': False, # True,
+                'enabled': False,  # True,
                 'host': 'note.vn.dev',
                 'note_info': {
                     'available': True,
@@ -140,7 +140,7 @@ class MultiHost ():
             }
         }
 
-    def get_sub_mode (self):
+    def get_sub_mode(self):
         if self.sub_mode == 'debug':
             return 'debug'
         elif self.sub_mode == 'development':
@@ -149,33 +149,33 @@ class MultiHost ():
             return 'main_note'
         return None
 
-    def get_variable (self, name):
+    def get_variable(self, name):
         return self.hostVariables()[self.get_sub_mode()][name]
 
-    def get_domain_name (self, fullPath, lastSlash=True):
+    def get_domain_name(self, fullPath, lastSlash=True):
         note_info = self.get_variable('note_info')
         return note_info['protocol'] + '://' + note_info['domain'] + (note_info['path'] if fullPath else '') + ('/' if lastSlash else '')
 
-    def get_request_method (self):
+    def get_request_method(self):
         return self.get_variable('note_info')['method']
-    
-    def get_live_server (self):
+
+    def get_live_server(self):
         return (self.get_socket_protocol() + '://' + self.get_variable('live_info')['host']) if self.get_variable('live_info')['available'] else None
-    
-    def is_valid_live_server (self):
+
+    def is_valid_live_server(self):
         return self.get_variable('live_info')['available']
 
-    def get_live_port (self):
+    def get_live_port(self):
         return self.get_variable('live_info')['port'] if self.get_variable('live_info')['available'] else None
 
-    def get_shared_url (self):
+    def get_shared_url(self):
         return self.get_variable('share_info')['protocol'] + '://' + self.get_variable('share_info')['domain'] + self.get_variable('share_info')['path']
 
-    def get_shared_structure (self):
+    def get_shared_structure(self):
         return self.get_variable('share_info')['structure']
 
-    def get_method_type (self, funcNeed):
+    def get_method_type(self, funcNeed):
         return self.get_variable('note_info')['method'][funcNeed]
 
-    def get_process_url (self):
+    def get_process_url(self):
         return self.get_domain_name(True, lastSlash=False) + self.get_variable('note_info')['process_path']
