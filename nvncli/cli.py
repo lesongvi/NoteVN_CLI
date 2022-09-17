@@ -37,69 +37,70 @@ WARNING = 'red'
 MESSAGE = 'blue'
 SUCCESS = 'green'
 
+
 def start():
 
-	arguments = docopt(__doc__, version='nvncli version '+'.'.join(str(i) for i in __version__))
-	
-	filename = arguments.get('FILE', None)
-	curr_dir = os.getcwd()
-	file_path = os.path.join(curr_dir, filename)
+    arguments = docopt(__doc__, version='nvncli version ' +
+                       '.'.join(str(i) for i in __version__))
 
-	live_update = arguments.get('--live-update', False)
-	watch = arguments.get('--watch', False)
+    filename = arguments.get('FILE', None)
+    curr_dir = os.getcwd()
+    file_path = os.path.join(curr_dir, filename)
 
-	get = arguments.get('--get', False)
+    live_update = arguments.get('--live-update', False)
+    watch = arguments.get('--watch', False)
 
-	link = arguments.get('LINK', ' ')
+    get = arguments.get('--get', False)
 
-	debugHost = arguments.get('--debug', False)
+    link = arguments.get('LINK', ' ')
 
-	multihost = MultiHost('debug' if debugHost else 'main_note')
+    debugHost = arguments.get('--debug', False)
 
-	try: 
-		cprint('Connecting to %s...' % (multihost.get_variable('host')), MESSAGE)
+    multihost = MultiHost('debug' if debugHost else 'main_note')
 
-		notevn = Notevn(link, live_update=live_update, multihost=multihost)
+    try:
+        cprint('Connecting to %s...' %
+               (multihost.get_variable('host')), MESSAGE)
 
-	except Exception as e:
-		print(traceback.format_exc())
-		if hasattr(e, 'stacktrace'):
-			print(e.stacktrace())
-		else:
-			print(e)
+        notevn = Notevn(link, live_update=live_update, multihost=multihost)
 
-		cprint("\nError: Something went wrong...", WARNING)
-		return -1
+    except Exception as e:
+        print(traceback.format_exc())
+        if hasattr(e, 'stacktrace'):
+            print(e.stacktrace())
+        else:
+            print(e)
 
-	if(get):
-		notevn.save_to_file(filename, True)
-		cprint("Saved contents of {} to {} succesfully".format(link, filename), SUCCESS)
-		return 1;
+        cprint("\nError: Something went wrong...", WARNING)
+        return -1
 
-	if(notevn.haspw):
-		cprint('\nPASS: The given url is password protected', MESSAGE)
-	else:
-		cprint("Saving {} to {}..... \n".format(filename,link), SUCCESS)
-		notevn.save_file(file_path, arguments['--overwrite'])
+    if (get):
+        notevn.save_to_file(filename, True)
+        cprint("Saved contents of {} to {} succesfully".format(
+            link, filename), SUCCESS)
+        return 1
 
-		try:
-			if watch:
-				cprint('Watching {} for changes'.format(filename),MESSAGE)
+    if (notevn.haspw):
+        cprint('\nPASS: The given url is password protected', MESSAGE)
+    else:
+        cprint("Saving {} to {}..... \n".format(filename, link), SUCCESS)
+        notevn.save_file(file_path, arguments['--overwrite'])
 
-			while watch:
-				time.sleep(5)
-				if notevn.is_file_content_changed():
-					cprint('\nChanges detected', MESSAGE)
-					notevn.save_file(file_path, True)
-					cprint('Changes saved',MESSAGE)
+        try:
+            if watch:
+                cprint('Watching {} for changes'.format(filename), MESSAGE)
 
-		except  KeyboardInterrupt:
-			cprint('\nClosing nvncli', MESSAGE) 
+            while watch:
+                time.sleep(5)
+                if notevn.is_file_content_changed():
+                    cprint('\nChanges detected', MESSAGE)
+                    notevn.save_file(file_path, True)
+                    cprint('Changes saved', MESSAGE)
+
+        except KeyboardInterrupt:
+            cprint('\nClosing nvncli', MESSAGE)
+
 
 if __name__ == '__main__':
 
     start()
-	
-
-
-
