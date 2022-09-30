@@ -48,6 +48,7 @@ def start():
     file_path = os.path.join(curr_dir, filename)
 
     live_update = arguments.get('--live-update', False)
+ 
     watch = arguments.get('--watch', False)
 
     get = arguments.get('--get', False)
