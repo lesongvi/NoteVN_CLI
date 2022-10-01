@@ -46,7 +46,7 @@ nvnc -g file_path urlpath
 
 Note: Using other flags with g flag is redundant
 
-## Contributor
+## Contributors
 
 Thank to those people who has contributed to our project:
 
