@@ -2,6 +2,10 @@
 
 A [notevn.com](https://notevn.com) command line interface
 
+### Pipeline status
+
+[![Pylint](https://github.com/lesongvi/NoteVN_CLI/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/lesongvi/NoteVN_CLI/actions/workflows/pylint.yml)
+
 
 ### Installing
 
