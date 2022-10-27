@@ -2,6 +2,10 @@
 
 A [notevn.com](https://notevn.com) command line interface
 
+### Pipeline status
+
+[![Pylint](https://github.com/lesongvi/NoteVN_CLI/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/lesongvi/NoteVN_CLI/actions/workflows/pylint.yml)
+
 
 ### Installing
 
@@ -46,7 +50,7 @@ nvnc -g file_path urlpath
 
 Note: Using other flags with g flag is redundant
 
-## Contributor
+## Contributors
 
 Thank to those people who has contributed to our project:
 
