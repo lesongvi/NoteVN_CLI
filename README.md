@@ -55,7 +55,6 @@ Note: Using other flags with g flag is redundant
 Thank to those people who has contributed to our project:
 
 - Vi, Le Song
-- Diu, Truong
 
 ## Issue tracking
 
